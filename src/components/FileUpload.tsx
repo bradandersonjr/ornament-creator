@@ -55,18 +55,20 @@ function FileUpload() {
 
     return (
       <div className="w-full">
-        <div className="mb-4 flex justify-between items-center">
+        <div className="mb-4 flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg sticky top-0 z-10">
           <Button onClick={handleBack} disabled={pathHistory.length <= 1}>
             Back
           </Button>
-          <p className="text-gray-600 dark:text-gray-400">{currentPath}</p>
+          <p className="text-gray-600 dark:text-gray-400 truncate">{currentPath}</p>
         </div>
-        {folders.length > 0 && (
-          <SubfolderCards items={folders} basePath={currentPath} onNavigate={handleNavigate} />
-        )}
-        {images.length > 0 && (
-          <ImageGallery images={images} basePath={currentPath} />
-        )}
+        <div className="mt-4">
+          {folders.length > 0 && (
+            <SubfolderCards items={folders} basePath={currentPath} onNavigate={handleNavigate} />
+          )}
+          {images.length > 0 && (
+            <ImageGallery images={images} basePath={currentPath} />
+          )}
+        </div>
       </div>
     );
   }

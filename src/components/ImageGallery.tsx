@@ -25,9 +25,12 @@ function ImageGallery({ images, basePath }: ImageGalleryProps) {
     }
   };
 
+  // Extract only the last part of the basePath
+  const folderName = basePath.split(/[/\\]/).pop() || 'Images';
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Images</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{folderName}</h2>
       <div className="w-[512px] h-[512px] mx-auto">
         <Carousel slide={false} leftControl="←" rightControl="→">
           {images.map((image, index) => (

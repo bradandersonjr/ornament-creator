@@ -13,9 +13,12 @@ function SubfolderCards({ items, basePath, onNavigate }: SubfolderCardsProps) {
     onNavigate(newPath);
   };
 
+  // Extract only the last part of the basePath
+  const folderName = basePath.split(/[/\\]/).pop() || 'Contents';
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Contents</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{folderName}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((item, index) => (
           <div key={index} onClick={() => handleClick(item)} className="cursor-pointer">
