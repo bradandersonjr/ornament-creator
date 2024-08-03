@@ -1,37 +1,74 @@
 import React, { useState } from 'react';
-import { Label } from 'flowbite-react';
+import { Label, Button } from 'flowbite-react';
 import SubfolderCards from './SubfolderCards';
+import ImageGallery from './ImageGallery';
 
 declare global {
   interface Window {
     electron: {
       openFolder: () => Promise<string>;
-      readDir: (path: string) => Promise<string[]>;
+      readDir: (path: string) => Promise<{ name: string; type: string }[]>;
     };
   }
 }
 
 function FileUpload() {
-  const [subfolders, setSubfolders] = useState<string[]>([]);
-  const [showCards, setShowCards] = useState(false);
-  const [basePath, setBasePath] = useState('');
+  const [items, setItems] = useState<{ name: string; type: string }[]>([]);
+  const [showContent, setShowContent] = useState(false);
+  const [currentPath, setCurrentPath] = useState('');
+  const [pathHistory, setPathHistory] = useState<string[]>([]);
 
-  const handleFolderSelect = async () => {
+  const handleFolderSelect = async (path?: string) => {
     try {
-      const folderPath = await window.electron.openFolder();
+      const folderPath = path || await window.electron.openFolder();
       if (folderPath) {
         const contents = await window.electron.readDir(folderPath);
-        setSubfolders(contents);
-        setBasePath(folderPath);
-        setShowCards(true);
+        setItems(contents);
+        setCurrentPath(folderPath);
+        setShowContent(true);
+        if (!path) {
+          setPathHistory([folderPath]);
+        }
       }
     } catch (error) {
       console.error('Error selecting folder:', error);
     }
   };
 
-  if (showCards) {
-    return <SubfolderCards subfolders={subfolders} basePath={basePath} />;
+  const handleNavigate = (newPath: string) => {
+    setPathHistory(prev => [...prev, newPath]);
+    handleFolderSelect(newPath);
+  };
+
+  const handleBack = () => {
+    if (pathHistory.length > 1) {
+      const newHistory = [...pathHistory];
+      newHistory.pop();
+      setPathHistory(newHistory);
+      handleFolderSelect(newHistory[newHistory.length - 1]);
+    }
+  };
+
+  if (showContent) {
+    const folders = items.filter(item => item.type === 'directory').map(item => item.name);
+    const images = items.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif)$/i.test(item.name)).map(item => item.name);
+
+    return (
+      <div className="w-full">
+        <div className="mb-4 flex justify-between items-center">
+          <Button onClick={handleBack} disabled={pathHistory.length <= 1}>
+            Back
+          </Button>
+          <p className="text-gray-600 dark:text-gray-400">{currentPath}</p>
+        </div>
+        {folders.length > 0 && (
+          <SubfolderCards items={folders} basePath={currentPath} onNavigate={handleNavigate} />
+        )}
+        {images.length > 0 && (
+          <ImageGallery images={images} basePath={currentPath} />
+        )}
+      </div>
+    );
   }
 
   return (
@@ -39,7 +76,7 @@ function FileUpload() {
       <Label
         htmlFor="folder-upload"
         className="flex h-[512px] w-[512px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-        onClick={handleFolderSelect}
+        onClick={() => handleFolderSelect()}
       >
         <div className="flex flex-col items-center justify-center pb-6 pt-5">
           <svg
