@@ -1,20 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from 'flowbite-react';
+import SubfolderCards from './SubfolderCards';
 
-function FolderUpload() {
-  const handleFolderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      // Handle the folder upload logic here
-      console.log("Uploaded folder contents:", files);
+declare global {
+  interface Window {
+    electron: {
+      openFolder: () => Promise<string>;
+      readDir: (path: string) => Promise<string[]>;
+    };
+  }
+}
+
+function FileUpload() {
+  const [subfolders, setSubfolders] = useState<string[]>([]);
+  const [showCards, setShowCards] = useState(false);
+  const [basePath, setBasePath] = useState('');
+
+  const handleFolderSelect = async () => {
+    try {
+      const folderPath = await window.electron.openFolder();
+      if (folderPath) {
+        const contents = await window.electron.readDir(folderPath);
+        setSubfolders(contents);
+        setBasePath(folderPath);
+        setShowCards(true);
+      }
+    } catch (error) {
+      console.error('Error selecting folder:', error);
     }
   };
+
+  if (showCards) {
+    return <SubfolderCards subfolders={subfolders} basePath={basePath} />;
+  }
 
   return (
     <div className="flex w-full items-center justify-center">
       <Label
         htmlFor="folder-upload"
         className="flex h-[512px] w-[512px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+        onClick={handleFolderSelect}
       >
         <div className="flex flex-col items-center justify-center pb-6 pt-5">
           <svg
@@ -33,20 +58,13 @@ function FolderUpload() {
             />
           </svg>
           <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-            <span className="font-semibold">Click to upload a folder</span> or drag and drop
+            <span className="font-semibold">Click to select a folder</span>
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Upload a folder containing files</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Select a folder containing files</p>
         </div>
-        <input
-          id="folder-upload"
-          type="file"
-          webkitdirectory="true"
-          className="hidden"
-          onChange={handleFolderChange}
-        />
       </Label>
     </div>
   );
 }
 
-export default FolderUpload;
+export default FileUpload;

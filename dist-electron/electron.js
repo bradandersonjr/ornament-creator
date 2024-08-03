@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from "electron";
+import { app, ipcMain, dialog, BrowserWindow } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs/promises";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 function createWindow() {
@@ -8,8 +9,9 @@ function createWindow() {
     width: 800,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js")
     },
     autoHideMenuBar: true
   });
@@ -19,7 +21,24 @@ function createWindow() {
     win.loadURL("http://localhost:5173");
   }
 }
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  ipcMain.handle("open-folder-dialog", async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ["openDirectory"]
+    });
+    return result.filePaths[0];
+  });
+  ipcMain.handle("read-dir", async (_, folderPath) => {
+    try {
+      const contents = await fs.readdir(folderPath, { withFileTypes: true });
+      return contents.filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name);
+    } catch (error) {
+      console.error("Error reading directory:", error);
+      throw error;
+    }
+  });
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
