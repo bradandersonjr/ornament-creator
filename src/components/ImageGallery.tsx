@@ -14,7 +14,7 @@ function ImageGallery({ images, basePath }: ImageGalleryProps) {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [fontFamily, setFontFamily] = useState('Arial');
   const [circleSize, setCircleSize] = useState(100);
-  const [showCircle, setShowCircle] = useState(true);
+  const [showCircle, setShowCircle] = useState(false); // Changed from true to false
   const [textCircleSize, setTextCircleSize] = useState(80);
   const [kerning, setKerning] = useState(0);
   const [imageOffsetX, setImageOffsetX] = useState(0);

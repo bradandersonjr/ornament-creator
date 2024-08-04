@@ -197,12 +197,17 @@ function SidebarDrawer({
                   <input
                     id="textRotation"
                     type="range"
-                    min="0"
-                    max="360"
+                    min="-180"
+                    max="180"
                     value={textRotation}
                     onChange={(e) => onTextRotationChange(Number(e.target.value))}
                     className="range range-primary range-sm"
                   />
+                  <div className="w-full flex justify-between text-xs px-2">
+                    <span>-180°</span>
+                    <span>0°</span>
+                    <span>180°</span>
+                  </div>
                 </div>
               </div>
             </div>
