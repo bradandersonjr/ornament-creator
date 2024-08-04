@@ -35,6 +35,39 @@ app.whenReady().then(() => {
     }
   })
 
+  let mainWindow;
+
+  function createWindow() {
+    mainWindow = new BrowserWindow({
+      width: 750,
+      height: 750,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, 'preload.js')
+      },
+      autoHideMenuBar: true
+    });
+
+    if (app.isPackaged) {
+      mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    } else {
+      mainWindow.loadURL('http://localhost:5173');
+    }
+  }
+
+  ipcMain.on('folder-selected', () => {
+    mainWindow.setFullScreen(true);
+  });
+
+  ipcMain.on('reset-window-size', () => {
+    mainWindow.setFullScreen(false);
+    mainWindow.setSize(750, 750);
+    mainWindow.center();
+  });
+
+  createWindow();
+
   protocol.registerFileProtocol('safe-file', (request, callback) => {
     const url = request.url.replace(/^safe-file:\/\//, '')
     try {

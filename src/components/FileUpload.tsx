@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Label, Button } from 'flowbite-react';
 import SubfolderCards from './SubfolderCards';
 import ImageGallery from './ImageGallery';
+import SidebarDrawer from './SidebarDrawer';
 
 declare global {
   interface Window {
     electron: {
       openFolder: () => Promise<string>;
       readDir: (path: string) => Promise<{ name: string; type: string }[]>;
+      setFullScreen: () => void;
+      resetWindowSize: () => void;
     };
   }
 }
@@ -17,6 +20,7 @@ function FileUpload() {
   const [showContent, setShowContent] = useState(false);
   const [currentPath, setCurrentPath] = useState('');
   const [pathHistory, setPathHistory] = useState<string[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleFolderSelect = async (path?: string) => {
     try {
@@ -29,6 +33,7 @@ function FileUpload() {
         if (!path) {
           setPathHistory([folderPath]);
         }
+        window.electron.setFullScreen();
       }
     } catch (error) {
       console.error('Error selecting folder:', error);
@@ -40,26 +45,37 @@ function FileUpload() {
     handleFolderSelect(newPath);
   };
 
+  const handleResetWindowSize = () => {
+    setShowContent(false);
+    setPathHistory([]);
+    window.electron.resetWindowSize();
+  };
+
   const handleBack = () => {
     if (pathHistory.length > 1) {
       const newHistory = [...pathHistory];
       newHistory.pop();
       setPathHistory(newHistory);
       handleFolderSelect(newHistory[newHistory.length - 1]);
+    } else {
+      handleResetWindowSize();
     }
   };
 
   if (showContent) {
     const folders = items.filter(item => item.type === 'directory').map(item => item.name);
     const images = items.filter(item => item.type === 'file' && /\.(jpg|jpeg|png|gif)$/i.test(item.name)).map(item => item.name);
-
+  
     return (
       <div className="w-full">
         <div className="mb-4 flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg sticky top-0 z-10">
-          <Button onClick={handleBack} disabled={pathHistory.length <= 1}>
+          <Button onClick={handleBack}>
             Back
           </Button>
           <p className="text-gray-600 dark:text-gray-400 truncate">{currentPath}</p>
+          {images.length > 0 && (
+            <Button onClick={() => setIsDrawerOpen(true)}>Open Sidebar</Button>
+          )}
         </div>
         <div className="mt-4">
           {folders.length > 0 && (
@@ -69,6 +85,9 @@ function FileUpload() {
             <ImageGallery images={images} basePath={currentPath} />
           )}
         </div>
+        {images.length > 0 && (
+          <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+        )}
       </div>
     );
   }
