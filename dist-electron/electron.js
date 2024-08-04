@@ -4,10 +4,11 @@ import { fileURLToPath } from "url";
 import fs from "fs/promises";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let mainWindow;
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 750,
-    height: 750,
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -16,9 +17,9 @@ function createWindow() {
     autoHideMenuBar: true
   });
   if (app.isPackaged) {
-    win.loadFile(path.join(__dirname, "dist", "index.html"));
+    mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
   } else {
-    win.loadURL("http://localhost:5173");
+    mainWindow.loadURL("http://localhost:5173");
   }
 }
 app.whenReady().then(() => {
@@ -30,33 +31,15 @@ app.whenReady().then(() => {
       console.error(error);
     }
   });
-  let mainWindow;
-  function createWindow2() {
-    mainWindow = new BrowserWindow({
-      width: 750,
-      height: 750,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        preload: path.join(__dirname, "preload.js")
-      },
-      autoHideMenuBar: true
-    });
-    if (app.isPackaged) {
-      mainWindow.loadFile(path.join(__dirname, "dist", "index.html"));
-    } else {
-      mainWindow.loadURL("http://localhost:5173");
-    }
-  }
+  createWindow();
   ipcMain.on("folder-selected", () => {
     mainWindow.setFullScreen(true);
   });
   ipcMain.on("reset-window-size", () => {
     mainWindow.setFullScreen(false);
-    mainWindow.setSize(750, 750);
+    mainWindow.setSize(800, 800);
     mainWindow.center();
   });
-  createWindow2();
   protocol.registerFileProtocol("safe-file", (request, callback) => {
     const url = request.url.replace(/^safe-file:\/\//, "");
     try {
@@ -65,7 +48,6 @@ app.whenReady().then(() => {
       console.error(error);
     }
   });
-  createWindow2();
   ipcMain.handle("open-folder-dialog", async () => {
     const result = await dialog.showOpenDialog({
       properties: ["openDirectory"]

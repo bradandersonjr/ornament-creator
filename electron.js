@@ -6,22 +6,24 @@ import fs from 'fs/promises'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 750,
-    height: 750,
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 800,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
     autoHideMenuBar: true
-  })
+  });
 
   if (app.isPackaged) {
-    win.loadFile(path.join(__dirname, 'dist', 'index.html'))
+    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
   } else {
-    win.loadURL('http://localhost:5173')
+    mainWindow.loadURL('http://localhost:5173');
   }
 }
 
@@ -33,28 +35,9 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error(error)
     }
-  })
+  });
 
-  let mainWindow;
-
-  function createWindow() {
-    mainWindow = new BrowserWindow({
-      width: 750,
-      height: 750,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
-        preload: path.join(__dirname, 'preload.js')
-      },
-      autoHideMenuBar: true
-    });
-
-    if (app.isPackaged) {
-      mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
-    } else {
-      mainWindow.loadURL('http://localhost:5173');
-    }
-  }
+  createWindow();
 
   ipcMain.on('folder-selected', () => {
     mainWindow.setFullScreen(true);
@@ -62,11 +45,9 @@ app.whenReady().then(() => {
 
   ipcMain.on('reset-window-size', () => {
     mainWindow.setFullScreen(false);
-    mainWindow.setSize(750, 750);
+    mainWindow.setSize(800, 800);
     mainWindow.center();
   });
-
-  createWindow();
 
   protocol.registerFileProtocol('safe-file', (request, callback) => {
     const url = request.url.replace(/^safe-file:\/\//, '')
@@ -75,16 +56,14 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error(error)
     }
-  })
-
-  createWindow()
+  });
 
   ipcMain.handle('open-folder-dialog', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory']
     })
     return result.filePaths[0]
-  })
+  });
 
   ipcMain.handle('read-dir', async (_, folderPath) => {
     try {
@@ -97,17 +76,17 @@ app.whenReady().then(() => {
       console.error('Error reading directory:', error)
       throw error
     }
-  })
-})
+  });
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
-})
+});
