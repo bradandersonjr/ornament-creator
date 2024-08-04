@@ -83,7 +83,7 @@ function SidebarDrawer({
   return (
     <>
       <div className={twMerge(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-base-200 shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col",
+        "fixed inset-y-0 left-0 z-50 w-96 bg-base-200 shadow-lg transform transition-transform duration-300 ease-in-out flex flex-col",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex justify-between items-center p-4 border-b border-base-300">
@@ -296,7 +296,7 @@ function SidebarDrawer({
                       type="range"
                       min="0.5"
                       max="2"
-                      step="0.1"
+                      step="0.01"
                       value={imageZoom}
                       onChange={(e) => onImageZoomChange(Number(e.target.value))}
                       className="range range-primary range-sm"

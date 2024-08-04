@@ -93,12 +93,7 @@ function ImageModal({
   }, [handleKeyDown]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -125,7 +120,7 @@ function ImageModal({
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (!isDrawerOpen) return;
     e.preventDefault();
-    const zoomFactor = 0.1;
+    const zoomFactor = 0.01;
     const delta = e.deltaY > 0 ? -zoomFactor : zoomFactor;
     setImageZoom((prevZoom) => Math.max(0.1, Math.min(3, prevZoom + delta)));
   };
@@ -158,9 +153,7 @@ function ImageModal({
           useCORS: true,
           scale: 2,
           backgroundColor: null,
-          ignoreElements: (element) => {
-            return element.classList.contains('ignore-capture');
-          }
+          ignoreElements: (element) => element.classList.contains('ignore-capture')
         });
 
         canvas.toBlob(async (blob) => {
@@ -224,6 +217,8 @@ function ImageModal({
         imageZoom={imageZoom}
         onImageZoomChange={setImageZoom}
         onCaptureImage={copyImageToClipboard}
+        textRotation={textRotation}
+        onTextRotationChange={setTextRotation}
       />
       <div className="flex-grow flex items-center justify-center">
         <div 
@@ -268,6 +263,7 @@ function ImageModal({
                 strokeWidth={strokeWidth / 10}
                 strokeLinejoin="round"
                 strokeLinecap="round"
+                transform={`rotate(${textRotation}, 50, 50)`}
               >
                 <textPath href="#textPath" startOffset="50%" textAnchor="middle">
                   {kernedText}
@@ -277,6 +273,7 @@ function ImageModal({
                 fontSize={`${fontSize / 10}px`}
                 fontFamily={fontFamily}
                 fill="black"
+                transform={`rotate(${textRotation}, 50, 50)`}
               >
                 <textPath href="#textPath" startOffset="50%" textAnchor="middle">
                   {kernedText}
