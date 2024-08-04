@@ -23,8 +23,8 @@ function createWindow() {
   }
 }
 app.whenReady().then(() => {
-  protocol.registerFileProtocol("local-file", (request, callback) => {
-    const url = request.url.replace(/^local-file:\/\//, "");
+  protocol.registerFileProtocol("safe-file", (request, callback) => {
+    const url = request.url.replace(/^safe-file:\/\//, "");
     try {
       return callback(decodeURIComponent(url));
     } catch (error) {

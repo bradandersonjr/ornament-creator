@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Carousel } from 'flowbite-react';
-import path from 'path-browserify';
+import React, { useState } from 'react';
 import ImageModal from './ImageModal';
+import path from 'path-browserify';
 
 interface ImageGalleryProps {
   images: string[];
@@ -9,50 +8,94 @@ interface ImageGalleryProps {
 }
 
 function ImageGallery({ images, basePath }: ImageGalleryProps) {
-  const [openModal, setOpenModal] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [text, setText] = useState('');
+  const [fontSize, setFontSize] = useState(40);
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [fontFamily, setFontFamily] = useState('Arial');
+  const [circleSize, setCircleSize] = useState(100);
+  const [showCircle, setShowCircle] = useState(true);
+  const [textCircleSize, setTextCircleSize] = useState(80);
+  const [kerning, setKerning] = useState(0);
+  const [imageOffsetX, setImageOffsetX] = useState(0);
+  const [imageOffsetY, setImageOffsetY] = useState(0);
+  const [imageZoom, setImageZoom] = useState(1);
+  const [textRotation, setTextRotation] = useState(0);
 
-  const handleImageClick = (index: number) => {
-    setCurrentIndex(index);
-    setOpenModal(true);
+  const openModal = (index: number) => {
+    setSelectedImageIndex(index);
   };
 
-  const handleNavigate = (direction: 'prev' | 'next') => {
+  const closeModal = () => {
+    setSelectedImageIndex(null);
+  };
+
+  const getImageSrc = (imageName: string) => {
+    const fullPath = path.join(basePath, imageName);
+    return `safe-file://${fullPath.replace(/\\/g, '/')}`;
+  };
+
+  const navigateImage = (direction: 'prev' | 'next') => {
+    if (selectedImageIndex === null) return;
+    let newIndex;
     if (direction === 'prev') {
-      setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : images.length - 1));
+      newIndex = (selectedImageIndex - 1 + images.length) % images.length;
     } else {
-      setCurrentIndex((prevIndex) => (prevIndex < images.length - 1 ? prevIndex + 1 : 0));
+      newIndex = (selectedImageIndex + 1) % images.length;
     }
+    setSelectedImageIndex(newIndex);
   };
-
-  const folderName = basePath.split(/[/\\]/).pop() || 'Images';
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{folderName}</h2>
-      <div className="w-[512px] h-[512px] mx-auto">
-        <Carousel slide={false} setActiveItem={setCurrentIndex} activeItem={currentIndex}>
-          {images.map((image, index) => (
-            <div key={index} className="flex items-center justify-center w-full h-full">
-              <img
-                src={`safe-file://${path.join(basePath, image)}`}
-                alt={image}
-                className="max-w-full max-h-full object-contain cursor-pointer"
-                onClick={() => handleImageClick(index)}
-              />
-            </div>
-          ))}
-        </Carousel>
+    <div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className="cursor-pointer aspect-square relative overflow-hidden"
+            onClick={() => openModal(index)}
+          >
+            <img
+              src={getImageSrc(image)}
+              alt={image}
+              className="absolute inset-0 w-full h-full object-cover rounded-lg"
+            />
+          </div>
+        ))}
       </div>
-
-      <ImageModal
-        isOpen={openModal}
-        onClose={() => setOpenModal(false)}
-        images={images}
-        currentIndex={currentIndex}
-        basePath={basePath}
-        onNavigate={handleNavigate}
-      />
+      {selectedImageIndex !== null && (
+        <ImageModal
+          isOpen={selectedImageIndex !== null}
+          imageSrc={getImageSrc(images[selectedImageIndex])}
+          altText={images[selectedImageIndex]}
+          onClose={closeModal}
+          onNavigate={navigateImage}
+          text={text}
+          setText={setText}
+          fontSize={fontSize}
+          setFontSize={setFontSize}
+          strokeWidth={strokeWidth}
+          setStrokeWidth={setStrokeWidth}
+          fontFamily={fontFamily}
+          setFontFamily={setFontFamily}
+          circleSize={circleSize}
+          setCircleSize={setCircleSize}
+          showCircle={showCircle}
+          setShowCircle={setShowCircle}
+          textCircleSize={textCircleSize}
+          setTextCircleSize={setTextCircleSize}
+          kerning={kerning}
+          setKerning={setKerning}
+          imageOffsetX={imageOffsetX}
+          setImageOffsetX={setImageOffsetX}
+          imageOffsetY={imageOffsetY}
+          setImageOffsetY={setImageOffsetY}
+          imageZoom={imageZoom}
+          setImageZoom={setImageZoom}
+          textRotation={textRotation}
+          setTextRotation={setTextRotation}
+        />
+      )}
     </div>
   );
 }

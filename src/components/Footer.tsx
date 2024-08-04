@@ -1,11 +1,12 @@
 import React from 'react';
-import { Footer as FlowbiteFooter } from 'flowbite-react';
 
 function Footer() {
   return (
-    <FlowbiteFooter container className="bg-white dark:bg-gray-800">
-      <FlowbiteFooter.Copyright href="#" by="Ornament Creator™" year={2023} />
-    </FlowbiteFooter>
+    <footer className="footer footer-center p-4 bg-base-300 text-base-content">
+      <div>
+        <p>Copyright © 2023 - All right reserved by Ornament Creator™</p>
+      </div>
+    </footer>
   );
 }
 
