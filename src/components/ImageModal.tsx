@@ -32,6 +32,8 @@ interface ImageModalProps {
   setImageZoom: (zoom: number) => void;
   textRotation: number;
   setTextRotation: (rotation: number) => void;
+  textStraighten: number;
+  setTextStraighten: (straighten: number) => void;
 }
 
 function ImageModal({
@@ -63,7 +65,9 @@ function ImageModal({
   imageZoom,
   setImageZoom,
   textRotation,
-  setTextRotation
+  setTextRotation,
+  textStraighten,
+  setTextStraighten
 }: ImageModalProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -143,6 +147,7 @@ function ImageModal({
   const radius = circleSize / 2;
   const textRadius = textCircleSize / 2;
   const textPath = `M${50 - textRadius},50 A${textRadius},${textRadius} 0 0,0 ${50 + textRadius},50`;
+  const straightenedTextPath = `M${50 - textRadius},50 L${50 + textRadius},50`;
 
   const kernedText = text.split('').join(String.fromCharCode(8202).repeat(kerning));
 
@@ -219,6 +224,8 @@ function ImageModal({
         onCaptureImage={copyImageToClipboard}
         textRotation={textRotation}
         onTextRotationChange={setTextRotation}
+        textStraighten={textStraighten}
+        onTextStraightenChange={setTextStraighten}
       />
       <div className="flex-grow flex items-center justify-center">
         <div 
@@ -255,7 +262,7 @@ function ImageModal({
                   className="ignore-capture"
                 />
               )}
-              <path id="textPath" d={textPath} fill="none" />
+              <path id="textPath" d={textStraighten === 100 ? straightenedTextPath : textPath} fill="none" />
               <text
                 fontSize={`${fontSize / 10}px`}
                 fontFamily={fontFamily}
@@ -265,7 +272,7 @@ function ImageModal({
                 strokeLinecap="round"
                 transform={`rotate(${textRotation}, 50, 50)`}
               >
-                <textPath href="#textPath" startOffset="50%" textAnchor="middle">
+                <textPath href="#textPath" startOffset="50%" textAnchor="middle" dominantBaseline="central">
                   {kernedText}
                 </textPath>
               </text>
@@ -275,7 +282,7 @@ function ImageModal({
                 fill="black"
                 transform={`rotate(${textRotation}, 50, 50)`}
               >
-                <textPath href="#textPath" startOffset="50%" textAnchor="middle">
+                <textPath href="#textPath" startOffset="50%" textAnchor="middle" dominantBaseline="central">
                   {kernedText}
                 </textPath>
               </text>

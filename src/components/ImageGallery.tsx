@@ -21,6 +21,7 @@ function ImageGallery({ images, basePath }: ImageGalleryProps) {
   const [imageOffsetY, setImageOffsetY] = useState(0);
   const [imageZoom, setImageZoom] = useState(1);
   const [textRotation, setTextRotation] = useState(0);
+  const [textStraighten, setTextStraighten] = useState(0);
 
   const openModal = (index: number) => {
     setSelectedImageIndex(index);
@@ -94,6 +95,8 @@ function ImageGallery({ images, basePath }: ImageGalleryProps) {
           setImageZoom={setImageZoom}
           textRotation={textRotation}
           setTextRotation={setTextRotation}
+          textStraighten={textStraighten}
+          setTextStraighten={setTextStraighten}
         />
       )}
     </div>

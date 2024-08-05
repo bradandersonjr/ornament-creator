@@ -30,6 +30,8 @@ interface SidebarDrawerProps {
   onCaptureImage: () => void;
   textRotation: number;
   onTextRotationChange: (rotation: number) => void;
+  textStraighten: number;
+  onTextStraightenChange: (straighten: number) => void;
 }
 
 function SidebarDrawer({
@@ -59,7 +61,9 @@ function SidebarDrawer({
   onImageZoomChange,
   onCaptureImage,
   textRotation,
-  onTextRotationChange
+  onTextRotationChange,
+  textStraighten,
+  onTextStraightenChange
 }: SidebarDrawerProps) {
   const [toastVisible, setToastVisible] = useState(false);
   const [showImageControls, setShowImageControls] = useState(false);
@@ -186,6 +190,21 @@ function SidebarDrawer({
                     max="100"
                     value={textCircleSize}
                     onChange={(e) => onTextCircleSizeChange(Number(e.target.value))}
+                    className="range range-primary range-sm"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="textStraighten" className="label">
+                    <span className="label-text">Text Straighten: {textStraighten}%</span>
+                  </label>
+                  <input
+                    id="textStraighten"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={textStraighten}
+                    onChange={(e) => onTextStraightenChange(Number(e.target.value))}
                     className="range range-primary range-sm"
                   />
                 </div>
