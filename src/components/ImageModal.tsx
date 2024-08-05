@@ -120,7 +120,7 @@ function ImageModal({
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (!isDrawerOpen) return;
     e.preventDefault();
-    const zoomFactor = 0.1;
+    const zoomFactor = 0.01;
     const delta = e.deltaY > 0 ? -zoomFactor : zoomFactor;
     setImageZoom((prevZoom) => Math.max(0.1, Math.min(3, prevZoom + delta)));
   };
@@ -150,15 +150,26 @@ function ImageModal({
     if (imageRef.current) {
       try {
         const canvas = await html2canvas(imageRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: null,
           ignoreElements: (element) => element.classList.contains('ignore-capture')
         });
-        canvas.toBlob((blob) => {
+
+        canvas.toBlob(async (blob) => {
           if (blob) {
-            navigator.clipboard.write([
-              new ClipboardItem({
-                'image/png': blob
-              })
-            ]);
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({
+                  'image/png': blob
+                })
+              ]);
+              console.log('Image copied to clipboard successfully');
+            } catch (error) {
+              console.error('Error writing to clipboard:', error);
+            }
+          } else {
+            console.error('Failed to create blob from canvas');
           }
         }, 'image/png', 1);
       } catch (error) {
@@ -272,25 +283,25 @@ function ImageModal({
           </div>
           <button
             onClick={onClose}
-            className={`btn btn-circle btn-sm absolute top-2 right-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} ignore-capture`}
+            className={`btn btn-circle btn-sm absolute top-2 right-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
           >
             ✕
           </button>
           <button
             onClick={toggleDrawer}
-            className={`btn btn-circle btn-sm absolute top-2 left-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} ignore-capture`}
+            className={`btn btn-circle btn-sm absolute top-2 left-2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
           >
             ☰
           </button>
           <button
             onClick={() => onNavigate('prev')}
-            className={`btn btn-circle btn-sm absolute top-1/2 left-2 transform -translate-y-1/2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} ignore-capture`}
+            className={`btn btn-circle btn-sm absolute top-1/2 left-2 transform -translate-y-1/2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
           >
             ←
           </button>
           <button
             onClick={() => onNavigate('next')}
-            className={`btn btn-circle btn-sm absolute top-1/2 right-2 transform -translate-y-1/2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} ignore-capture`}
+            className={`btn btn-circle btn-sm absolute top-1/2 right-2 transform -translate-y-1/2 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
           >
             →
           </button>
@@ -301,4 +312,3 @@ function ImageModal({
 }
 
 export default ImageModal;
-    
